@@ -19,13 +19,13 @@ services:
 
   app:
     container_name: tea-app
-    image: arpanelfranklin/tea-app:latest
+    image: arpanel/tea-app:latest
     platform: linux/amd64
     restart: always
     networks:
       - tea-app
     ports:
-      - "8080:8080"
+      - "8888:8080"
     depends_on:
       - mongo
 
