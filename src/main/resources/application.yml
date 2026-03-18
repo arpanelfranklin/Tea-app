@@ -1,0 +1,6 @@
+spring:
+  data:
+    mongodb:
+      auto-index-creation: true
+  mongodb:
+    uri: mongodb://localhost:27017/Quora

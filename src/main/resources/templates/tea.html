@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tea Spill</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+    <script src="/_sdk/element_sdk.js"></script>
+    <script src="/_sdk/data_sdk.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&amp;family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        html, body { height: 100%; margin: 0; }
+        .app-shell { height: 100%; overflow: auto; }
+        .font-display { font-family: 'Playfair Display', Georgia, serif; }
+        .font-body { font-family: 'DM Sans', sans-serif; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-dot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.4); } }
+        .anim-slide-up { animation: slideUp 0.5s ease forwards; }
+        .anim-delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .anim-delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .anim-delay-3 { animation-delay: 0.3s; opacity: 0; }
+        .hot-dot { animation: pulse-dot 1.5s ease infinite; }
+        .gossip-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .gossip-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+        .cat-pill { transition: all 0.2s ease; }
+        .cat-pill:hover { transform: scale(1.05); }
+        .cat-pill.active { transform: scale(1.05); }
+    </style>
+    <style>body { box-sizing: border-box; }</style>
+</head>
+<body class="h-full font-body">
+<div id="app" class="app-shell w-full" style="background-color: #0f0f0f; color: #f0e6d3;"><!-- Header -->
+    <header class="w-full px-4 sm:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4" style="border-bottom: 1px solid #2a2220;">
+        <div class="text-center sm:text-left">
+            <h1 id="el-title" class="font-display text-3xl sm:text-4xl font-900 tracking-tight" style="color: #e63946;">☕ Tea Spill</h1>
+            <p id="el-tagline" class="text-sm mt-1 opacity-70">Where secrets don't stay secret for long</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 text-xs opacity-60"><span class="inline-block w-2 h-2 rounded-full hot-dot" style="background:#e63946;"></span> <span id="el-live-count">0 posts live</span>
+            </div><button id="btn-new" class="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all hover:scale-105" style="background:#e63946; color:#0f0f0f;"> <i data-lucide="plus" style="width:16px;height:16px;"></i> <span id="el-submit-btn-text">Spill the Tea</span> </button>
+        </div>
+    </header><!-- Stats Bar -->
+    <div class="w-full px-4 sm:px-8 py-4 grid grid-cols-2 sm:grid-cols-4 gap-3 anim-slide-up anim-delay-1">
+        <div class="rounded-xl p-4" style="background:#1a1614; border:1px solid #2a2220;">
+            <div class="text-xs opacity-50 mb-1">
+                Total Posts
+            </div>
+            <div id="stat-total" class="text-2xl font-bold font-display" style="color:#e63946;">
+                0
+            </div>
+        </div>
+        <div class="rounded-xl p-4" style="background:#1a1614; border:1px solid #2a2220;">
+            <div class="text-xs opacity-50 mb-1">
+                🔥 Hot Takes
+            </div>
+            <div id="stat-hot" class="text-2xl font-bold font-display" style="color:#e63946;">
+                0
+            </div>
+        </div>
+        <div class="rounded-xl p-4" style="background:#1a1614; border:1px solid #2a2220;">
+            <div class="text-xs opacity-50 mb-1">
+                Total Likes
+            </div>
+            <div id="stat-likes" class="text-2xl font-bold font-display" style="color:#e63946;">
+                0
+            </div>
+        </div>
+        <div class="rounded-xl p-4" style="background:#1a1614; border:1px solid #2a2220;">
+            <div class="text-xs opacity-50 mb-1">
+                Top Category
+            </div>
+            <div id="stat-top-cat" class="text-lg font-bold font-display truncate" style="color:#e63946;">
+                —
+            </div>
+        </div>
+    </div><!-- Category Filter -->
+    <div class="w-full px-4 sm:px-8 py-3 flex flex-wrap gap-2 anim-slide-up anim-delay-2"><button class="cat-pill active px-4 py-1.5 rounded-full text-xs font-semibold" data-cat="all" style="background:#e63946; color:#0f0f0f;">All</button> <button class="cat-pill px-4 py-1.5 rounded-full text-xs font-semibold" data-cat="celebrity" style="background:#2a2220; color:#f0e6d3;">Celebrity</button> <button class="cat-pill px-4 py-1.5 rounded-full text-xs font-semibold" data-cat="workplace" style="background:#2a2220; color:#f0e6d3;">Workplace</button> <button class="cat-pill px-4 py-1.5 rounded-full text-xs font-semibold" data-cat="relationships" style="background:#2a2220; color:#f0e6d3;">Relationships</button> <button class="cat-pill px-4 py-1.5 rounded-full text-xs font-semibold" data-cat="neighborhood" style="background:#2a2220; color:#f0e6d3;">Neighborhood</button> <button class="cat-pill px-4 py-1.5 rounded-full text-xs font-semibold" data-cat="other" style="background:#2a2220; color:#f0e6d3;">Other</button>
+    </div><!-- Trending Section Title -->
+    <div class="w-full px-4 sm:px-8 pt-4 pb-2 anim-slide-up anim-delay-3">
+        <h2 id="el-trending-title" class="font-display text-xl font-bold flex items-center gap-2"><i data-lucide="trending-up" style="width:20px;height:20px;color:#e63946;"></i> Trending Now</h2>
+    </div><!-- Posts Feed -->
+    <div id="feed" class="w-full px-4 sm:px-8 pb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"><!-- Posts rendered here -->
+    </div><!-- Empty State -->
+    <div id="empty-state" class="w-full px-4 sm:px-8 pb-8 text-center py-16 hidden">
+        <div class="text-5xl mb-4">
+            🤫
+        </div>
+        <p class="font-display text-xl opacity-50">No gossip yet… be the first to spill!</p>
+    </div><!-- New Post Modal -->
+    <div id="modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" style="background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);">
+        <div class="w-full max-w-md rounded-2xl p-6" style="background:#1a1614; border:1px solid #2a2220;">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="font-display text-xl font-bold" style="color:#e63946;">New Gossip</h3><button id="btn-close-modal" class="opacity-50 hover:opacity-100 transition-opacity"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+            </div>
+            <form id="gossip-form" class="flex flex-col gap-4">
+                <div><label for="input-author" class="block text-xs font-semibold mb-1 opacity-60">Your Alias</label> <input id="input-author" type="text" maxlength="30" placeholder="Anonymous Insider" class="w-full rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2" style="background:#0f0f0f; border:1px solid #2a2220; color:#f0e6d3; --tw-ring-color:#e63946;" required>
+                </div>
+                <div><label for="input-content" class="block text-xs font-semibold mb-1 opacity-60">The Tea ☕</label> <textarea id="input-content" rows="4" maxlength="500" placeholder="Spill it here…" class="w-full rounded-lg px-4 py-2.5 text-sm outline-none resize-none focus:ring-2" style="background:#0f0f0f; border:1px solid #2a2220; color:#f0e6d3; --tw-ring-color:#e63946;" required></textarea>
+                    <div class="text-right text-xs opacity-40 mt-1">
+                        <span id="char-count">0</span>/500
+                    </div>
+                </div>
+                <div><label for="input-category" class="block text-xs font-semibold mb-1 opacity-60">Category</label> <select id="input-category" class="w-full rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2" style="background:#0f0f0f; border:1px solid #2a2220; color:#f0e6d3; --tw-ring-color:#e63946;"> <option value="celebrity">Celebrity</option> <option value="workplace">Workplace</option> <option value="relationships">Relationships</option> <option value="neighborhood">Neighborhood</option> <option value="other">Other</option> </select>
+                </div><label class="flex items-center gap-2 cursor-pointer"> <input id="input-hot" type="checkbox" class="w-4 h-4 accent-red-500"> <span class="text-sm">🔥 Mark as Hot Take</span> </label>
+                <div id="form-error" class="text-xs hidden rounded-lg px-3 py-2" style="background:#e6394620; color:#e63946;"></div>
+                <div id="form-limit" class="text-xs hidden rounded-lg px-3 py-2" style="background:#e6394620; color:#e63946;">
+                    Maximum 999 posts reached! Delete some posts to add new ones.
+                </div><button id="btn-submit" type="submit" class="w-full py-3 rounded-full font-semibold text-sm transition-all hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed" style="background:#e63946; color:#0f0f0f;"> Post Anonymously </button>
+            </form>
+        </div>
+    </div><!-- Delete Confirmation Inline -->
+    <div id="delete-confirm" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden rounded-xl px-5 py-3 flex items-center gap-3 shadow-2xl" style="background:#1a1614; border:1px solid #e63946;"><span class="text-sm">Delete this gossip?</span> <button id="btn-confirm-delete" class="px-4 py-1.5 rounded-full text-xs font-bold" style="background:#e63946; color:#0f0f0f;">Yes, delete</button> <button id="btn-cancel-delete" class="px-4 py-1.5 rounded-full text-xs font-bold" style="background:#2a2220; color:#f0e6d3;">Cancel</button>
+    </div><!-- Toast -->
+    <div id="toast" class="fixed top-4 right-4 z-50 rounded-xl px-5 py-3 text-sm font-semibold shadow-2xl transition-all translate-x-[120%]" style="background:#e63946; color:#0f0f0f;"><span id="toast-msg"></span>
+    </div>
+</div>
+<script>
+    // ---- State ----
+    let allPosts = [];
+    let activeCategory = 'all';
+    let pendingDeleteRecord = null;
+
+    const defaultConfig = {
+        site_title: '☕ Tea Spill',
+        tagline: "Where secrets don't stay secret for long",
+        trending_title: 'Trending Now',
+        submit_button_text: 'Spill the Tea',
+        background_color: '#0f0f0f',
+        surface_color: '#1a1614',
+        text_color: '#f0e6d3',
+        primary_action_color: '#e63946',
+        secondary_action_color: '#2a2220',
+        font_family: 'DM Sans',
+        font_size: 14
+    };
+
+    // ---- Element SDK ----
+    window.elementSdk.init({
+        defaultConfig,
+        async onConfigChange(cfg) {
+            const c = key => cfg[key] || defaultConfig[key];
+
+            // Text
+            document.getElementById('el-title').textContent = c('site_title');
+            document.getElementById('el-tagline').textContent = c('tagline');
+            document.getElementById('el-trending-title').innerHTML = `<i data-lucide="trending-up" style="width:20px;height:20px;color:${c('primary_action_color')};"></i> ${c('trending_title')}`;
+            document.getElementById('el-submit-btn-text').textContent = c('submit_button_text');
+
+            // Colors
+            const app = document.getElementById('app');
+            app.style.backgroundColor = c('background_color');
+            app.style.color = c('text_color');
+
+            document.querySelectorAll('[data-surface]').forEach(el => {
+                el.style.backgroundColor = c('surface_color');
+                el.style.borderColor = c('secondary_action_color');
+            });
+
+            // Header title
+            document.getElementById('el-title').style.color = c('primary_action_color');
+
+            // Stats
+            document.querySelectorAll('.app-shell .rounded-xl[style*="background:#1a1614"]').forEach(el => {
+                el.style.background = c('surface_color');
+                el.style.borderColor = c('secondary_action_color');
+            });
+            document.querySelectorAll('[style*="color:#e63946"]').forEach(el => {
+                el.style.color = c('primary_action_color');
+            });
+
+            // Primary button
+            const btnNew = document.getElementById('btn-new');
+            btnNew.style.background = c('primary_action_color');
+            btnNew.style.color = c('background_color');
+            const btnSubmit = document.getElementById('btn-submit');
+            btnSubmit.style.background = c('primary_action_color');
+            btnSubmit.style.color = c('background_color');
+
+            // Category pills
+            document.querySelectorAll('.cat-pill').forEach(pill => {
+                if (pill.classList.contains('active')) {
+                    pill.style.background = c('primary_action_color');
+                    pill.style.color = c('background_color');
+                } else {
+                    pill.style.background = c('secondary_action_color');
+                    pill.style.color = c('text_color');
+                }
+            });
+
+            // Font
+            const fontStack = `${c('font_family')}, DM Sans, sans-serif`;
+            app.style.fontFamily = fontStack;
+            document.querySelectorAll('.font-display').forEach(el => {
+                el.style.fontFamily = `Playfair Display, ${c('font_family')}, serif`;
+            });
+
+            // Font size
+            const base = c('font_size');
+            app.style.fontSize = `${base}px`;
+
+            // Modal
+            const modal = document.querySelector('#modal-overlay > div');
+            if (modal) {
+                modal.style.background = c('surface_color');
+                modal.style.borderColor = c('secondary_action_color');
+            }
+
+            // Re-render cards with new colors
+            renderFeed();
+            lucide.createIcons();
+        },
+        mapToCapabilities(cfg) {
+            const c = key => cfg[key] || defaultConfig[key];
+            function mut(key) {
+                return {
+                    get: () => c(key),
+                    set: (v) => { cfg[key] = v; window.elementSdk.setConfig({ [key]: v }); }
+                };
+            }
+            return {
+                recolorables: [
+                    mut('background_color'),
+                    mut('surface_color'),
+                    mut('text_color'),
+                    mut('primary_action_color'),
+                    mut('secondary_action_color')
+                ],
+                borderables: [],
+                fontEditable: mut('font_family'),
+                fontSizeable: mut('font_size')
+            };
+        },
+        mapToEditPanelValues(cfg) {
+            return new Map([
+                ['site_title', cfg.site_title || defaultConfig.site_title],
+                ['tagline', cfg.tagline || defaultConfig.tagline],
+                ['trending_title', cfg.trending_title || defaultConfig.trending_title],
+                ['submit_button_text', cfg.submit_button_text || defaultConfig.submit_button_text]
+            ]);
+        }
+    });
+
+    // ---- Data SDK ----
+    const dataHandler = {
+        onDataChanged(data) {
+            allPosts = data.slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            updateStats();
+            renderFeed();
+        }
+    };
+
+    (async () => {
+        const res = await window.dataSdk.init(dataHandler);
+        if (!res.isOk) console.error('Data SDK init failed');
+    })();
+
+    // ---- Helpers ----
+    const cfg = () => window.elementSdk.config || defaultConfig;
+    const c = key => cfg()[key] || defaultConfig[key];
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        const tm = document.getElementById('toast-msg');
+        tm.textContent = msg;
+        t.style.background = c('primary_action_color');
+        t.style.color = c('background_color');
+        t.classList.remove('translate-x-[120%]');
+        setTimeout(() => t.classList.add('translate-x-[120%]'), 2500);
+    }
+
+    function timeAgo(iso) {
+        const diff = Date.now() - new Date(iso).getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 1) return 'just now';
+        if (mins < 60) return `${mins}m ago`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs}h ago`;
+        return `${Math.floor(hrs / 24)}d ago`;
+    }
+
+    const categoryEmoji = { celebrity: '⭐', workplace: '💼', relationships: '💕', neighborhood: '🏘️', other: '💬' };
+
+    function updateStats() {
+        document.getElementById('stat-total').textContent = allPosts.length;
+        document.getElementById('stat-hot').textContent = allPosts.filter(p => p.is_hot).length;
+        document.getElementById('stat-likes').textContent = allPosts.reduce((s, p) => s + (p.likes || 0), 0);
+        document.getElementById('el-live-count').textContent = `${allPosts.length} post${allPosts.length !== 1 ? 's' : ''} live`;
+
+        const cats = {};
+        allPosts.forEach(p => { cats[p.category] = (cats[p.category] || 0) + 1; });
+        const topCat = Object.entries(cats).sort((a, b) => b[1] - a[1])[0];
+        document.getElementById('stat-top-cat').textContent = topCat ? topCat[0].charAt(0).toUpperCase() + topCat[0].slice(1) : '—';
+    }
+
+    function renderFeed() {
+        const feed = document.getElementById('feed');
+        const empty = document.getElementById('empty-state');
+        const filtered = activeCategory === 'all' ? allPosts : allPosts.filter(p => p.category === activeCategory);
+
+        if (filtered.length === 0) {
+            feed.classList.add('hidden');
+            empty.classList.remove('hidden');
+        } else {
+            feed.classList.remove('hidden');
+            empty.classList.add('hidden');
+        }
+
+        const existingMap = new Map([...feed.children].map(el => [el.dataset.id, el]));
+        const newIds = new Set(filtered.map(p => p.__backendId));
+
+        // Remove cards no longer in view
+        existingMap.forEach((el, id) => { if (!newIds.has(id)) el.remove(); });
+
+        filtered.forEach((post, i) => {
+            const existing = existingMap.get(post.__backendId);
+            if (existing) {
+                updateCard(existing, post);
+            } else {
+                const card = createCard(post, i);
+                feed.appendChild(card);
+            }
+        });
+
+        lucide.createIcons();
+    }
+
+    function createCard(post, i) {
+        const div = document.createElement('div');
+        div.className = 'gossip-card rounded-2xl p-5 anim-slide-up';
+        div.style.cssText = `background:${c('surface_color')}; border:1px solid ${c('secondary_action_color')}; animation-delay:${Math.min(i * 0.05, 0.3)}s; opacity:0;`;
+        div.dataset.id = post.__backendId;
+        updateCardInner(div, post);
+        return div;
+    }
+
+    function updateCard(el, post) {
+        el.style.background = c('surface_color');
+        el.style.borderColor = c('secondary_action_color');
+        updateCardInner(el, post);
+    }
+
+    function updateCardInner(el, post) {
+        const emoji = categoryEmoji[post.category] || '💬';
+        el.innerHTML = `
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">${emoji}</span>
+            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full" style="background:${c('secondary_action_color')}; color:${c('text_color')};">${post.category}</span>
+            ${post.is_hot ? '<span class="text-xs font-bold px-2.5 py-0.5 rounded-full" style="background:' + c('primary_action_color') + '20; color:' + c('primary_action_color') + ';">🔥 HOT</span>' : ''}
+          </div>
+          <button class="btn-delete opacity-30 hover:opacity-100 transition-opacity" data-id="${post.__backendId}"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+        </div>
+        <p class="text-sm leading-relaxed mb-4" style="color:${c('text_color')};">${escapeHtml(post.content)}</p>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2 text-xs opacity-50">
+            <i data-lucide="user" style="width:12px;height:12px;"></i>
+            <span>${escapeHtml(post.author || 'Anonymous')}</span>
+            <span>·</span>
+            <span>${timeAgo(post.created_at)}</span>
+          </div>
+          <button class="btn-like flex items-center gap-1 text-xs px-3 py-1 rounded-full transition-all hover:scale-105" data-id="${post.__backendId}" style="background:${c('secondary_action_color')}; color:${c('primary_action_color')};">
+            <i data-lucide="heart" style="width:12px;height:12px;"></i>
+            <span>${post.likes || 0}</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+        const d = document.createElement('div');
+        d.textContent = str || '';
+        return d.innerHTML;
+    }
+
+    // ---- Event Handlers ----
+
+    // Open/close modal
+    document.getElementById('btn-new').addEventListener('click', () => {
+        document.getElementById('modal-overlay').classList.remove('hidden');
+        document.getElementById('form-error').classList.add('hidden');
+        const limitEl = document.getElementById('form-limit');
+        if (allPosts.length >= 999) {
+            limitEl.classList.remove('hidden');
+            document.getElementById('btn-submit').disabled = true;
+        } else {
+            limitEl.classList.add('hidden');
+            document.getElementById('btn-submit').disabled = false;
+        }
+    });
+
+    document.getElementById('btn-close-modal').addEventListener('click', () => {
+        document.getElementById('modal-overlay').classList.add('hidden');
+    });
+
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) document.getElementById('modal-overlay').classList.add('hidden');
+    });
+
+    // Char count
+    document.getElementById('input-content').addEventListener('input', (e) => {
+        document.getElementById('char-count').textContent = e.target.value.length;
+    });
+
+    // Submit gossip
+    document.getElementById('gossip-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (allPosts.length >= 999) return;
+
+        const btn = document.getElementById('btn-submit');
+        const errEl = document.getElementById('form-error');
+        btn.disabled = true;
+        btn.textContent = 'Posting…';
+
+        const author = document.getElementById('input-author').value.trim() || 'Anonymous';
+        const content = document.getElementById('input-content').value.trim();
+        const category = document.getElementById('input-category').value;
+        const isHot = document.getElementById('input-hot').checked;
+
+        if (!content) {
+            errEl.textContent = 'You need to actually spill something!';
+            errEl.classList.remove('hidden');
+            btn.disabled = false;
+            btn.textContent = 'Post Anonymously';
+            return;
+        }
+
+        const result = await window.dataSdk.create({
+            author,
+            content,
+            category,
+            likes: 0,
+            created_at: new Date().toISOString(),
+            is_hot: isHot
+        });
+
+        if (result.isOk) {
+            document.getElementById('modal-overlay').classList.add('hidden');
+            document.getElementById('gossip-form').reset();
+            document.getElementById('char-count').textContent = '0';
+            showToast('Tea has been spilled! ☕');
+        } else {
+            errEl.textContent = 'Something went wrong. Try again!';
+            errEl.classList.remove('hidden');
+        }
+
+        btn.disabled = false;
+        btn.textContent = 'Post Anonymously';
+    });
+
+    // Category filter
+    document.querySelectorAll('.cat-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            activeCategory = pill.dataset.cat;
+            document.querySelectorAll('.cat-pill').forEach(p => {
+                p.classList.remove('active');
+                p.style.background = c('secondary_action_color');
+                p.style.color = c('text_color');
+            });
+            pill.classList.add('active');
+            pill.style.background = c('primary_action_color');
+            pill.style.color = c('background_color');
+            renderFeed();
+        });
+    });
+
+    // Like & Delete via delegation
+    document.getElementById('feed').addEventListener('click', async (e) => {
+        const likeBtn = e.target.closest('.btn-like');
+        if (likeBtn) {
+            const id = likeBtn.dataset.id;
+            const post = allPosts.find(p => p.__backendId === id);
+            if (!post) return;
+            likeBtn.style.pointerEvents = 'none';
+            const result = await window.dataSdk.update({ ...post, likes: (post.likes || 0) + 1 });
+            likeBtn.style.pointerEvents = '';
+            if (!result.isOk) showToast('Could not like. Try again!');
+            return;
+        }
+
+        const delBtn = e.target.closest('.btn-delete');
+        if (delBtn) {
+            const id = delBtn.dataset.id;
+            pendingDeleteRecord = allPosts.find(p => p.__backendId === id);
+            if (pendingDeleteRecord) {
+                document.getElementById('delete-confirm').classList.remove('hidden');
+            }
+        }
+    });
+
+    // Delete confirmation
+    document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+        if (!pendingDeleteRecord) return;
+        const btn = document.getElementById('btn-confirm-delete');
+        btn.textContent = 'Deleting…';
+        btn.disabled = true;
+        const result = await window.dataSdk.delete(pendingDeleteRecord);
+        if (result.isOk) {
+            showToast('Gossip deleted! 🗑️');
+        } else {
+            showToast('Could not delete. Try again!');
+        }
+        document.getElementById('delete-confirm').classList.add('hidden');
+        btn.textContent = 'Yes, delete';
+        btn.disabled = false;
+        pendingDeleteRecord = null;
+    });
+
+    document.getElementById('btn-cancel-delete').addEventListener('click', () => {
+        document.getElementById('delete-confirm').classList.add('hidden');
+        pendingDeleteRecord = null;
+    });
+
+    // Init icons
+    lucide.createIcons();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ddd0449b2b054d8',t:'MTc3Mzc2MTE5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

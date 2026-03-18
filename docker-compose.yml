@@ -1,0 +1,33 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    networks:
+        - tea-app
+    ports:
+        - "27017:27017"
+    volumes:
+        - mongo-data:/data/db
+    restart: always
+    healthcheck:
+        test: [ "CMD","mongosh","--eval","db.adminCommand('ping')" ]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+        start_period: 60s
+
+  app:
+    container_name: tea-app
+    image: arpanelfranklin/tea-app:latest
+    restart: always
+    networks:
+      - tea-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+
+networks:
+  tea-app:
+volumes:
+  mongo-data:
