@@ -1,7 +1,6 @@
 services:
   mongo:
     image: mongo:latest
-    platform: linux/amd64
     container_name: mongo
     networks:
         - tea-app
@@ -20,7 +19,6 @@ services:
   app:
     container_name: tea-app
     image: arpanel/tea-app:latest
-    platform: linux/amd64
     restart: always
     networks:
       - tea-app
