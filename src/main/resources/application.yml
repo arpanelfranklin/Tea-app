@@ -4,3 +4,4 @@ spring:
       auto-index-creation: true
   mongodb:
     uri: mongodb://mongo:27017/Tea-app
+
