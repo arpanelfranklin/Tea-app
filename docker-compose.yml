@@ -18,7 +18,7 @@ services:
 
   app:
     container_name: tea-app
-    image: arpanel/tea-app:latest
+    image: arpanelfranklin/tea-app:latest
     restart: always
     networks:
       - tea-app
