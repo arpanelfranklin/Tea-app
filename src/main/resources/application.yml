@@ -3,4 +3,4 @@ spring:
     mongodb:
       auto-index-creation: true
   mongodb:
-    uri: mongodb://localhost:27017/Quora
+    uri: mongodb://mongo:27017/Tea-app
