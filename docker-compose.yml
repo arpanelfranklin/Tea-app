@@ -18,7 +18,8 @@ services:
 
   app:
     container_name: tea-app
-    image: arpanelfranklin/tea-app:latest
+    build:
+      context: .
     restart: always
     networks:
       - tea-app
